@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -13,8 +12,7 @@
     ym(107289566, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/107289566" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>shkebede bio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -246,6 +244,53 @@
             script.setAttribute('data-colorful', '1');
             if (dark) script.setAttribute('data-dark', '1');
             commentsContainer.appendChild(script);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode');
+            loadComments(isDark);
+        });
+        loadComments(true);
+
+        // RANDOM FACTS
+        const factsList = [
+            "Факт №1: \"Моча отбеливает зубы\" Сосницкий Д.И.",
+            "Факт №8: \"Пузо беременных мужчин больше чем у дохлой бабки\" Вирусняк",
+            "Факт №2: Сонуки мой брадар, просто знайте это", 
+            "Факт №15: \"Если пернул и пахнет долго, значит сиранул\" @chmonya531",
+            "Факт №9: \"Несмотря на расстояние в ≈3500км каймер смог подорвать жопу санечку\" @скрыт",
+            "Факт №3: Карасю пасиба, без него я бы не смог узнать про хостинг гитхапппп🤔🤔🤔",
+            "Факт №12: \"а 😢ещё🎉 я🥰 пидофил😎\" @Time1194",
+            "Факт №14: \"Изи бриджи\" by @Smorwy",
+            "Факт №13: Этот сайт создал гемини по моим наброскам",
+            "Факт №10: Ты долгое время был неактивен на сервере сочные 🏳️‍⚧️фембои 24/7!",
+            "Факт №6: Скоро на этом сайте будут комментарии / p.s. они тут уже есть, но факт я не уберу", 
+            "Факт №7: Этот факт я написал после того как облился чаем",
+            "Факт №13: Принесу пива, возьму в рот @TheSane4ek"
+        ];
+
+        const btn = document.getElementById('getFactBtn');
+        const output = document.getElementById('factOutput');
+        let lastIndices = [];
+
+        btn.addEventListener('click', () => {
+            output.style.display = 'none';
+            setTimeout(() => {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * factsList.length);
+                } while (lastIndices.includes(randomIndex));
+                lastIndices.push(randomIndex);
+                if (lastIndices.length > 2) lastIndices.shift();
+                output.textContent = factsList[randomIndex];
+                output.style.display = 'block';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
+pendChild(script);
         }
 
         themeToggle.addEventListener('click', () => {
