@@ -239,10 +239,17 @@
             const script = document.createElement('script');
             script.async = true;
             script.src = "https://comments.app/js/widget.js?3";
-            script.setAttribute('data-comments-app-website', '5JvOrkuW');
+            script.setAttribute('data-comments-app-website', 'H5q6PgQw');
             script.setAttribute('data-limit', '5');
-            script.setAttribute('data-colorful', '1');
-            if (dark) script.setAttribute('data-dark', '1');
+            script.setAttribute('data-dislikes', '1');
+            
+            if (dark) {
+                script.setAttribute('data-color', '72E350');
+                script.setAttribute('data-dark', '1');
+            } else {
+                script.setAttribute('data-color', '29B127');
+            }
+            
             commentsContainer.appendChild(script);
         }
 
@@ -251,6 +258,8 @@
             document.body.classList.toggle('light-mode');
             loadComments(isDark);
         });
+        
+        // Первая загрузка
         loadComments(true);
 
         // RANDOM FACTS
