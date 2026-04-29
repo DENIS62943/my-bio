@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Downloader | shkebede</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Google Sans Regular'), local(GoogleSans-Regular), url(https://fonts.gstatic.com/s/googlesans/v5/4UaGrENHsxJlGDuGo1OIlL3Owp4.woff2) format("woff2");
+        }
+
+        :root {
+            --md-sys-color-background: #141218;
+            --md-sys-color-surface: #211f26;
+            --md-sys-color-on-surface: #e6e1e5;
+            --md-sys-color-primary-container: #4f378b;
+            --md-sys-color-on-primary-container: #eaddff;
+            --radius-main: 28px;
+            --radius-small: 8px;
+        }
+
+        body {
+            background-color: var(--md-sys-color-background);
+            color: var(--md-sys-color-on-surface);
+            font-family: 'Google Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card {
+            background-color: var(--md-sys-color-surface);
+            padding: 28px;
+            border-radius: var(--radius-main);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #49454f;
+            background: transparent;
+            color: white;
+            font-family: inherit;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #d0bcff;
+        }
+
+        .dl-button {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dl-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-area {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .video-preview {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--md-sys-color-on-surface);
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="title"><i class="fa-brands fa-tiktok"></i> TT Downloader</div>
+        <input type="text" id="urlInput" class="input-field" placeholder="Вставь ссылку на видео...">
+        <button class="dl-button" id="dlBtn">
+            <i class="fas fa-download"></i> Скачать без водяного знака
+        </button>
+
+        <div id="result" class="result-area">
+            <video id="player" class="video-preview" controls></video>
+            <button class="dl-button" id="saveBtn" style="background-color: #29B127; color: white;">
+                <i class="fas fa-file-download"></i> Сохранить файл
+            </button>
+        </div>
+    </div>
+    
+    <a href="index.html" class="back-link">← Вернуться в био</a>
+</div>
+
+<script>
+    const dlBtn = document.getElementById('dlBtn');
+    const urlInput = document.getElementById('urlInput');
+    const resultArea = document.getElementById('result');
+    const player = document.getElementById('player');
+    const saveBtn = document.getElementById('saveBtn');
+
+    dlBtn.addEventListener('click', async () => {
+        const url = urlInput.value.trim();
+        if (!url) return alert('Вставь ссылку!');
+
+        dlBtn.disabled = true;
+        dlBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+
+        try {
+            // Используем один из стабильных бесплатных API для парсинга
+            const response = await fetch(`https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+
+            if (data.video && data.video.noWatermark) {
+                const videoUrl = data.video.noWatermark;
+                player.src = videoUrl;
+                resultArea.style.display = 'block';
+                
+                saveBtn.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = videoUrl;
+                    a.download = `tiktok_video_${Date.now()}.mp4`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+            } else {
+                alert('Не удалось найти видео. Проверь ссылку.');
+            }
+        } catch (e) {
+            alert('Ошибка сервера. Попробуй позже.');
+        } finally {
+            dlBtn.disabled = false;
+            dlBtn.innerHTML = '<i class="fas fa-download"></i> Скачать без водяного знака';
+        }
+    });
+</script>
+
+</body>
+</html>
+
