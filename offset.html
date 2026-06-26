@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IL2CPP Offset Finder</title>
+    <title>IL2CPP Offset Finder v2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -33,7 +33,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
             background: var(--md-surface-dark);
             padding: 24px;
@@ -43,7 +43,7 @@
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 500;
             margin-top: 0;
             color: #E6E1E5;
@@ -122,32 +122,15 @@
             cursor: not-allowed;
         }
 
-        .btn-secondary {
-            background-color: #25232A;
-            color: var(--md-primary-container);
-            border: 1px solid var(--md-outline);
-        }
-
-        .btn-secondary:hover {
-            background-color: #2E2C34;
-        }
-
         .results-section {
             margin-top: 32px;
             display: none;
         }
 
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
         .results-header h2 {
             font-size: 20px;
             font-weight: 500;
-            margin: 0;
+            margin-bottom: 16px;
         }
 
         .offset-card {
@@ -168,10 +151,10 @@
         }
 
         .offset-name {
-            font-size: 14px;
-            color: #938F99;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 13px;
+            color: #B6A6E9;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: bold;
         }
 
         .offset-value {
@@ -183,7 +166,7 @@
 
         .offset-details {
             font-size: 12px;
-            color: #6750A4;
+            color: #938F99;
         }
 
         .btn-copy-small {
@@ -206,14 +189,14 @@
 
         textarea {
             width: 100%;
-            height: 150px;
+            height: 200px;
             background: #1D1B20;
             border: 1px solid var(--md-outline);
             border-radius: 8px;
             padding: 12px;
             color: #CAC4D0;
             font-family: 'Roboto Mono', monospace;
-            font-size: 13px;
+            font-size: 14px;
             resize: vertical;
             box-sizing: border-box;
         }
@@ -222,11 +205,11 @@
 <body>
 
 <div class="container">
-    <h1>IL2CPP Dump Offset Finder</h1>
-    <p class="description">Загрузите файл дампа (dump.cs) для автоматического поиска адресов и смещений полей.</p>
+    <h1>IL2CPP Dump Offset Finder v2.0</h1>
+    <p class="description">Умный поиск оффсетов с автоматическим перебором вариаций движка и классов игры.</p>
 
     <div class="file-upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <p id="upload-text">Нажмите или перетащите сюда файл dump.cs</p>
+        <p id="upload-text">Перетащите сюда файл dump.cs или нажмите для выбора</p>
         <input type="file" id="file-input" accept=".cs,.txt">
     </div>
     <div class="status" id="file-status">Файл не выбран</div>
@@ -236,83 +219,89 @@
     </div>
 
     <div class="results-section" id="results-section">
-        <div class="results-header">
-            <h2>Найденные оффсеты</h2>
-        </div>
-
+        <h2>Найденные результаты:</h2>
         <div id="cards-container"></div>
 
         <div class="global-copy-area">
-            <h3>Готовый блок для C++ кода:</h3>
+            <h3>Готовые макросы для C++:</h3>
             <textarea id="output-text-block" readonly></textarea>
-            <button class="btn-primary" id="btn-copy-all" style="align-self: flex-end;">Скопировать весь блок</button>
+            <button class="btn-primary" id="btn-copy-all" style="align-self: flex-end;">Скопировать макросы</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Словарь правил поиска. Скрипт идет по порядку вариаций, пока не найдет совпадение.
+    // Набор правил для глубокого поиска оффсетов
     const searchRules = {
         "RVA_PLAYER_UPDATE": {
             type: "method",
             variations: [
-                { class: "Player", method: "Update" },
                 { class: "GorillaLocomotion.Player", method: "Update" },
+                { class: "Player", method: "Update" },
                 { class: "GorillaPlayer", method: "Update" }
             ]
         },
         "RVA_SET_VELOCITY": {
             type: "method",
             variations: [
-                { class: "Player", method: "SetVelocity" },
+                { class: "UnityEngine.Rigidbody", method: "set_velocity" },
                 { class: "Rigidbody", method: "set_velocity" },
-                { class: "GorillaLocomotion.Player", method: "SetVelocity" }
+                { class: "GorillaLocomotion.Player", method: "SetVelocity" },
+                { class: "Player", method: "SetVelocity" }
             ]
         },
         "RVA_SET_GRAVITY": {
             type: "method",
             variations: [
-                { class: "Player", method: "SetGravity" },
+                { class: "UnityEngine.Rigidbody", method: "set_useGravity" },
                 { class: "Rigidbody", method: "set_useGravity" },
-                { class: "GorillaLocomotion.Player", method: "SetGravity" }
+                { class: "UnityEngine.Rigidbody", method: "set_gravity" },
+                { class: "Rigidbody", method: "set_gravity" }
             ]
         },
         "RVA_GET_FORWARD": {
             type: "method",
             variations: [
-                { class: "Transform", method: "GetForward" },
-                { class: "Transform", method: "get_forward" }
+                { class: "UnityEngine.Transform", method: "get_forward" },
+                { class: "Transform", method: "get_forward" },
+                { class: "UnityEngine.Transform", method: "GetForward" }
             ]
         },
         "FLD_RB_OFFSET": {
             type: "field",
             variations: [
-                { class: "Player", field: "playerRigidbody" },
-                { class: "Player", field: "body" },
                 { class: "GorillaLocomotion.Player", field: "playerRigidbody" },
-                { class: "GorillaLocomotion.Player", field: "body" }
+                { class: "Player", field: "playerRigidbody" },
+                { class: "GorillaLocomotion.Player", field: "body" },
+                { class: "Player", field: "body" },
+                { class: "GorillaLocomotion.Player", field: "rb" }
             ]
         },
         "FLD_HAND_OFFSET": {
             type: "field",
             variations: [
-                { class: "Player", field: "rightHandTransform" },
-                { class: "Player", field: "leftHandTransform" },
                 { class: "GorillaLocomotion.Player", field: "rightHandTransform" },
+                { class: "Player", field: "rightHandTransform" },
+                { class: "GorillaLocomotion.Player", field: "leftHandTransform" },
+                { class: "GorillaLocomotion.Player", field: "rightControllerTransform" },
                 { class: "GorillaLocomotion.Player", field: "hand" }
             ]
         },
         "RVA_FLY_METHOD": {
             type: "method",
             variations: [
-                { class: "ExploitMods", method: "fly" },
-                { class: "Player", method: "Fly" }
+                { class: "UnityEngine.Rigidbody", method: "AddForce" },
+                { class: "Rigidbody", method: "AddForce" },
+                { class: "UnityEngine.Transform", method: "set_position" },
+                { class: "Transform", method: "set_position" }
             ]
         },
         "RVA_NOCLIP_METHOD": {
             type: "method",
             variations: [
-                { class: "ExploitMods", method: "noclip" },
+                { class: "UnityEngine.Collider", method: "set_enabled" },
+                { class: "Collider", method: "set_enabled" },
+                { class: "UnityEngine.MeshCollider", method: "set_enabled" },
                 { class: "MeshCollider", method: "set_enabled" }
             ]
         }
@@ -329,10 +318,8 @@
     const outputTextBlock = document.getElementById('output-text-block');
     const btnCopyAll = document.getElementById('btn-copy-all');
 
-    // Обработка выбора файла
     fileInput.addEventListener('change', handleFileSelect);
 
-    // Drag and Drop
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#6750A4'; });
     dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--md-outline)'; });
     dropZone.addEventListener('drop', (e) => {
@@ -348,95 +335,102 @@
         const file = fileInput.files[0];
         if (!file) return;
 
-        fileStatus.textContent = `Чтение файла: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)...`;
+        fileStatus.textContent = `Загрузка файла: ${file.name}...`;
         btnParse.disabled = true;
 
         const reader = new FileReader();
         reader.onload = function(e) {
             loadedFileContent = e.target.result;
-            fileStatus.textContent = `Файл готов: ${file.name}`;
-            uploadText.textContent = `Файл загружен: ${file.name}`;
+            fileStatus.textContent = `Файл успешно загружен: ${file.name}`;
+            uploadText.textContent = `Выбран: ${file.name}`;
             btnParse.disabled = false;
         };
         reader.readAsText(file);
     }
 
-    // Парсер дампа
     btnParse.addEventListener('click', () => {
         if (!loadedFileContent) return;
 
-        fileStatus.textContent = "Анализ дампа, пожалуйста подождите...";
+        fileStatus.textContent = "Сканирование структуры дампа...";
         
-        // Разбиваем файл на строки
         const lines = loadedFileContent.split(/\r?\n/);
-        
-        // Инициализируем объект результатов
         const finalOffsets = {};
+        
         for (let key in searchRules) {
-            finalOffsets[key] = { value: "NOT_FOUND", details: "Не найдено в дампе" };
+            finalOffsets[key] = { value: "NOT_FOUND", details: "Не найден в дампе" };
         }
 
-        let currentClass = "";
+        let currentNamespace = "";
+        let currentClassWithNamespace = "";
+        let shortClassName = "";
         let previousLineRVA = "";
 
-        // Регулярные выражения для парсинга структуры Il2CppDumper
-        const classRegex = /(?:public|internal|private)\s+(?:class|struct)\s+([\w\.]+)/;
+        // Регулярные выражения адаптированные под Il2CppDumper dump.cs
+        const classRegex = /(?:public|internal|private|protected)\s+(?:static\s+)?(?:class|struct|interface)\s+([\w\d_<>\.]+)/;
         const rvaRegex = /\/\/ RVA:\s+(0x[0-9A-Fa-f]+)/;
-        const fieldRegex = /\s+public|private|protected|internal\s+[\w\<\>\[\]\.]+\s+(\w+);\s*\/\/\s*(0x[0-9A-Fa-f]+)/;
-        const methodRegex = /\s*(?:public|private|protected|internal|virtual|static|inline|\s)+\s+[\w\<\>\[\]\.]+\s+(\w+)\s*\(.*/;
+        const fieldRegex = /(?:public|private|protected|internal)\s+[\w\d_\.\<\>\[\]]+\s+(\w+)\s*;\s*\/\/\s*(0x[0-9A-Fa-f]+)/;
+        const methodRegex = /(?:public|private|protected|internal|static|virtual|override|inline|\s)+\s+[\w\d_\.\<\>\[\]]+\s+(\w+)\s*\(.*/;
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // 1. Отслеживаем текущий класс
-            const classMatch = line.match(classRegex);
-            if (classMatch) {
-                currentClass = classMatch[1];
+            // Извлечение Namespace
+            if (line.startsWith("// Namespace:")) {
+                currentNamespace = line.replace("// Namespace:", "").trim();
                 continue;
             }
 
-            // 2. Если строка содержит RVA метода
+            // Определение текущего класса
+            const classMatch = line.match(classRegex);
+            if (classMatch) {
+                shortClassName = classMatch[1];
+                if (currentNamespace && currentNamespace !== "-") {
+                    currentClassWithNamespace = currentNamespace + "." + shortClassName;
+                } else {
+                    currentClassWithNamespace = shortClassName;
+                }
+                continue;
+            }
+
+            // Парсинг RVA методов
             const rvaMatch = line.match(rvaRegex);
             if (rvaMatch) {
                 previousLineRVA = rvaMatch[1];
-                // Ищем само имя метода на следующей строке (или через одну)
                 let nextIdx = i + 1;
                 while (nextIdx < lines.length && (lines[nextIdx].trim().startsWith("//") || lines[nextIdx].trim() === "")) {
                     nextIdx++;
                 }
                 if (nextIdx < lines.length) {
-                    const methodMatch = lines[nextIdx].match(methodRegex);
+                    const methodMatch = lines[nextIdx].trim().match(methodRegex);
                     if (methodMatch) {
                         const methodName = methodMatch[1];
-                        checkMethodMatch(currentClass, methodName, previousLineRVA, finalOffsets);
+                        checkMethodMatch(currentClassWithNamespace, shortClassName, methodName, previousLineRVA, finalOffsets);
                     }
                 }
                 continue;
             }
 
-            // 3. Если строка содержит поле класса и его смещение
+            // Парсинг полей (Field Offset)
             const fieldMatch = line.match(fieldRegex);
             if (fieldMatch) {
                 const fieldName = fieldMatch[1];
                 const fieldOffset = fieldMatch[2];
-                checkFieldMatch(currentClass, fieldName, fieldOffset, finalOffsets);
+                checkFieldMatch(currentClassWithNamespace, shortClassName, fieldName, fieldOffset, finalOffsets);
             }
         }
 
         displayResults(finalOffsets);
     });
 
-    // Проверка соответствия методов правилам
-    function checkMethodMatch(className, methodName, rva, resultsObj) {
+    function checkMethodMatch(fullClass, shortClass, methodName, rva, resultsObj) {
         for (let key in searchRules) {
             if (searchRules[key].type === "method") {
-                // Если оффсет уже найден, не перезаписываем (выбираем первое совпадение)
                 if (resultsObj[key].value !== "NOT_FOUND") continue;
 
                 for (let variant of searchRules[key].variations) {
-                    if (variant.class === className && variant.method === methodName) {
-                        resultsObj[key] = { value: rva, details: `Найдено в ${className}::${methodName}()` };
+                    if ((variant.class === fullClass || variant.class === shortClass) && variant.method === methodName) {
+                        resultsObj[key] = { value: rva, details: `Класс: ${fullClass} -> Метод: ${methodName}()` };
                         break;
                     }
                 }
@@ -444,15 +438,14 @@
         }
     }
 
-    // Проверка соответствия полей правилам
-    function checkFieldMatch(className, fieldName, offset, resultsObj) {
+    function checkFieldMatch(fullClass, shortClass, fieldName, offset, resultsObj) {
         for (let key in searchRules) {
             if (searchRules[key].type === "field") {
                 if (resultsObj[key].value !== "NOT_FOUND") continue;
 
                 for (let variant of searchRules[key].variations) {
-                    if (variant.class === className && variant.field === fieldName) {
-                        resultsObj[key] = { value: offset, details: `Поле ${className}->${fieldName}` };
+                    if ((variant.class === fullClass || variant.class === shortClass) && variant.field === fieldName) {
+                        resultsObj[key] = { value: offset, details: `Класс: ${fullClass} -> Поле: ${fieldName}` };
                         break;
                     }
                 }
@@ -460,7 +453,6 @@
         }
     }
 
-    // Вывод результатов на страницу
     function displayResults(results) {
         cardsContainer.innerHTML = "";
         let textBlockContent = "";
@@ -468,7 +460,6 @@
         for (let key in results) {
             const item = results[key];
             
-            // Создаем карточку в интерфейсе
             const card = document.createElement('div');
             card.className = 'offset-card';
             card.innerHTML = `
@@ -481,30 +472,32 @@
             `;
             cardsContainer.appendChild(card);
 
-            // Формируем общую строку для макросов #define
-            textBlockContent += `#define ${key.padEnd(22)} ${item.value}\n`;
+            textBlockContent += `#define ${key.padEnd(24)} ${item.value}\n`;
         }
 
         outputTextBlock.value = textBlockContent;
-        fileStatus.textContent = "Анализ завершен успешно!";
+        fileStatus.textContent = "Готово! Все вариации проверены.";
         resultsSection.style.display = "block";
     }
 
-    // Функция копирования в буфер обмена
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
-            alert(`Скопировано: ${text}`);
-        }).catch(err => {
-            console.error('Ошибка копирования: ', err);
-        });
+            // Мягкое уведомление без alert, чтобы не бесить
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = "Скопировано!";
+            setTimeout(() => btn.textContent = originalText, 1200);
+        }).catch(err => console.error(err));
     }
 
-    // Копирование всего текстового блока
     btnCopyAll.addEventListener('click', () => {
-        copyToClipboard(outputTextBlock.value);
+        navigator.clipboard.writeText(outputTextBlock.value).then(() => {
+            btnCopyAll.textContent = "Все макросы скопированы!";
+            setTimeout(() => btnCopyAll.textContent = "Скопировать макросы", 1500);
+        });
     });
 </script>
 
 </body>
-  </html>
-  
+	</html>
+	
