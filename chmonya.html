@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>вулертыэээ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #111;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .bouncer {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border: 2px solid #333;
+    }
+
+    .bouncer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container"></div>
+
+  <script>
+    const container = document.getElementById('container');
+    const count = 12; // количество кубов
+    const bouncers = [];
+    const rect = container.getBoundingClientRect();
+
+    for (let i = 0; i < count; i++) {
+      const size = 80 + Math.random() * 60;
+      const el = document.createElement('div');
+      el.className = 'bouncer';
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      
+      const img = document.createElement('img');
+      img.src = 'chmonya.jpg';
+      img.alt = 'chmonya';
+      el.appendChild(img);
+      
+      const x = Math.random() * (rect.width - size);
+      const y = Math.random() * (rect.height - size);
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      
+      container.appendChild(el);
+      
+      bouncers.push({
+        el,
+        x,
+        y,
+        size,
+        speedX: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
+        speedY: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1)
+      });
+    }
+
+    function animate() {
+      const rect = container.getBoundingClientRect();
+      
+      bouncers.forEach(b => {
+        b.x += b.speedX;
+        b.y += b.speedY;
+        
+        if (b.x <= 0) { b.x = 0; b.speedX = Math.abs(b.speedX); }
+        if (b.x + b.size >= rect.width) { b.x = rect.width - b.size; b.speedX = -Math.abs(b.speedX); }
+        if (b.y <= 0) { b.y = 0; b.speedY = Math.abs(b.speedY); }
+        if (b.y + b.size >= rect.height) { b.y = rect.height - b.size; b.speedY = -Math.abs(b.speedY); }
+        
+        b.el.style.left = b.x + 'px';
+        b.el.style.top = b.y + 'px';
+      });
+      
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      const rect = container.getBoundingClientRect();
+      bouncers.forEach(b => {
+        if (b.x + b.size > rect.width) b.x = rect.width - b.size;
+        if (b.y + b.size > rect.height) b.y = rect.height - b.size;
+      });
+    });
+  </script>
+</body>
+</html>
