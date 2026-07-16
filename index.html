@@ -61,20 +61,22 @@
             color: var(--md-sys-color-on-surface);
             font-family: 'Google Sans', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
             transition: background-color 0.3s ease;
         }
 
         .container {
-            width: 100%;
+            width: calc(100% - 40px);
             max-width: 400px;
             display: flex;
             flex-direction: column;
             gap: 8px; 
+            margin: 20px 0;
         }
 
         .top-card {
@@ -196,6 +198,11 @@
 </head>
 <body>
 
+    <!-- Плашка во всю ширину в самом верху страницы -->
+    <div style="width: 100%;">
+        <script src="https://keepandroidopen.org/banner.js?size=mini&lang=en"></script>
+    </div>
+
     <div class="container">
         <div class="top-card">
             <div class="main-text">Shkbd <span class="hashtag">#victim</span></div>
@@ -228,7 +235,7 @@
     </div>
 
     <script>
-        // TIME
+        // времяя
         function updateTime() {
             const display = document.getElementById('timeDisplay');
             const warning = document.getElementById('warningText');
@@ -248,7 +255,7 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        // THEME & COMMENTS
+        // комментарии
         const commentsContainer = document.getElementById('comments-container');
         const themeToggle = document.getElementById('themeToggle');
         let isDark = true;
@@ -280,7 +287,7 @@
         
         loadComments(true);
 
-        // RANDOM FACTS
+        // факты
         const factsList = [
             "Факт №1: \"Моча отбеливает зубы\" Сосницкий Д.И.",
             "Факт №8: \"Пузо беременных мужчин больше чем у дохлой бабки\" Вирусняк",
@@ -319,4 +326,5 @@
         });
     </script>
 </body>
-</html>
+            </html>
+            
