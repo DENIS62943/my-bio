@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=107289566', 'ym');
+
+    ym(107289566, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/107289566" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>shkbd bio</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #100a1c;
+        --bg-noise: #170f28;
+        --surface: #1b1430;
+        --surface-2: #241a3d;
+        --border: #372a54;
+        --text: #eae4fb;
+        --text-dim: #8f84ad;
+        --cyan: #5ffbf1;
+        --magenta: #ff4fc3;
+        --amber: #ffc65c;
+        --danger: #ff5470;
+        --radius: 14px;
+    }
+
+    body.light-mode {
+        --bg: #f2ecdd;
+        --bg-noise: #ece3ce;
+        --surface: #fffdf6;
+        --surface-2: #f7efdc;
+        --border: #d8cba8;
+        --text: #241c10;
+        --text-dim: #6b6048;
+        --cyan: #0d8f86;
+        --magenta: #b8218f;
+        --amber: #a8660a;
+        --danger: #c23553;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* CRT scanline + vignette overlay */
+    .crt-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 999;
+        background:
+            repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.035) 0px,
+                rgba(255,255,255,0.035) 1px,
+                transparent 1px,
+                transparent 3px
+            ),
+            radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
+        opacity: 0.6;
+        mix-blend-mode: overlay;
+    }
+    body.light-mode .crt-overlay { opacity: 0.25; }
+
+    .window {
+        width: calc(100% - 32px);
+        max-width: 420px;
+        margin: 24px 0;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+        animation: bootUp 0.5s ease-out;
+    }
+    @keyframes bootUp {
+        from { opacity: 0; transform: translateY(8px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .titlebar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: var(--danger); }
+    .dot.a { background: var(--amber); }
+    .dot.c { background: var(--cyan); }
+    .titlebar-name {
+        margin-left: 6px;
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 0.03em;
+        flex: 1;
+    }
+    .theme-toggle {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-dim);
+        width: 24px; height: 24px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px;
+        cursor: pointer;
+    }
+    .theme-toggle:hover { color: var(--text); border-color: var(--cyan); }
+
+    .pane { padding: 18px 18px 6px; }
+
+    .prompt {
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .prompt::before { content: '❯ '; color: var(--cyan); }
+
+    .who-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+    .avatar-wrap img {
+        width: 76px; height: 76px;
+        border-radius: 10px;
+        object-fit: cover;
+        display: block;
+        border: 1px solid var(--border);
+    }
+    .avatar-wrap::after {
+        content: '';
+        position: absolute; inset: 0;
+        border-radius: 10px;
+        box-shadow: inset 0 0 0 2px var(--cyan);
+        opacity: 0.5;
+    }
+
+    .name-block { min-width: 0; }
+    .glitch-name {
+        font-family: 'Press Start 2P', monospace;
+        font-size: 20px;
+        letter-spacing: -1px;
+        line-height: 1.3;
+        color: var(--text);
+        position: relative;
+        display: inline-block;
+    }
+    .glitch-name::before,
+    .glitch-name::after {
+        content: 'SHKBD';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        opacity: 0.7;
+        clip-path: inset(0 0 0 0);
+    }
+    .glitch-name::before { color: var(--cyan); animation: glitchTop 6s infinite; }
+    .glitch-name::after { color: var(--magenta); animation: glitchBottom 6s infinite; }
+    @keyframes glitchTop {
+        0%, 92%, 100% { clip-path: inset(0 0 0 0); transform: translate(0,0); opacity: 0; }
+        93% { clip-path: inset(0 0 60% 0); transform: translate(-2px,-1px); opacity: 0.8; }
+        95% { clip-path: inset(40% 0 20% 0); transform: translate(2px,1px); opacity: 0.8; }
+        97% { clip-path: inset(0 0 0 0); transform: translate(0,0); opacity: 0; }
+    }
+    @keyframes glitchBottom {
+        0%, 92%, 100% { clip-path: inset(0 0 0 0); transform: translate(0,0); opacity: 0; }
+        93% { clip-path: inset(60% 0 0 0); transform: translate(2px,1px); opacity: 0.8; }
+        95% { clip-path: inset(10% 0 50% 0); transform: translate(-2px,-1px); opacity: 0.8; }
+        97% { clip-path: inset(0 0 0 0); transform: translate(0,0); opacity: 0; }
+    }
+
+    .tag {
+        display: inline-block;
+        margin-left: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        border-radius: 4px;
+        padding: 1px 5px;
+        vertical-align: middle;
+        animation: blink 1.8s step-start infinite;
+    }
+    @keyframes blink { 50% { opacity: 0.25; } }
+
+    .role-line {
+        margin-top: 6px;
+        font-size: 12.5px;
+        color: var(--text-dim);
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+    }
+    .stat-label { font-size: 10px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em; }
+    .stat-value { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+    .stat-warn {
+        font-size: 10px;
+        color: var(--danger);
+        text-transform: uppercase;
+        margin-top: 3px;
+        display: none;
+        animation: blink 1.2s step-start infinite;
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px dashed var(--border);
+        margin: 4px 0 16px;
+    }
+
+    .fact-btn {
+        width: 100%;
+        padding: 13px;
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 0.15s, color 0.15s;
+    }
+    .fact-btn::before { content: '$ '; color: var(--cyan); }
+    .fact-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .fact-output {
+        display: none;
+        margin-top: 10px;
+        padding: 12px 14px;
+        background: var(--bg-noise);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--magenta);
+        border-radius: 6px;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--text);
+        animation: typeIn 0.25s ease-out;
+    }
+    @keyframes typeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .cursor { display: inline-block; width: 7px; background: var(--cyan); animation: blink 0.9s step-start infinite; }
+
+    .links-pane { padding: 16px 18px; }
+    .link-list { display: flex; flex-direction: column; gap: 6px; }
+    .link-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 13px;
+        transition: border-color 0.15s, transform 0.1s;
+    }
+    .link-row:hover { border-color: var(--cyan); transform: translateX(2px); }
+    .link-row i { width: 18px; text-align: center; color: var(--cyan); font-size: 15px; }
+    .link-row .path { color: var(--text-dim); margin-left: auto; font-size: 11px; }
+
+    .comments-pane { padding: 4px 18px 18px; }
+    .comments-section {
+        background: var(--bg-noise);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        min-height: 70px;
+        transition: background-color 0.3s ease;
+    }
+
+    .footer-note {
+        text-align: center;
+        font-size: 10px;
+        color: var(--text-dim);
+        opacity: 0.6;
+        margin-bottom: 24px;
+        letter-spacing: 0.04em;
+    }
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+
+<!-- Плашка во всю ширину в самом верху страницы -->
+<div style="width: 100%;">
+    <script src="https://keepandroidopen.org/banner.js?size=mini&lang=en"></script>
+</div>
+
+<div class="window">
+    <div class="titlebar">
+        <span class="dot r"></span>
+        <span class="dot a"></span>
+        <span class="dot c"></span>
+        <span class="titlebar-name">shkbd@core:~</span>
+        <button class="theme-toggle" id="themeToggle"><i class="fas fa-palette"></i></button>
+    </div>
+
+    <div class="pane">
+        <div class="prompt">whoami</div>
+        <div class="who-row">
+            <div class="avatar-wrap">
+                <img src="avatarka.jpg" alt="Profile">
+            </div>
+            <div class="name-block">
+                <span class="glitch-name">SHKBD</span><span class="tag">#victim</span>
+                <div class="role-line">material designer</div>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div>
+                <div class="stat-label">MSK time</div>
+                <div class="stat-value" id="timeDisplay">00.00.00</div>
+                <div class="stat-warn" id="warningText">не писать!</div>
+            </div>
+            <i class="fas fa-satellite-dish" style="color: var(--text-dim); font-size: 20px;"></i>
+        </div>
+
+        <hr class="divider">
+
+        <div class="prompt">./random_fact.sh</div>
+        <button class="fact-btn" id="getFactBtn">generate --fact</button>
+        <div class="fact-output" id="factOutput"></div>
+    </div>
+
+    <div class="links-pane">
+        <div class="prompt">ls -la ~/links</div>
+        <div class="link-list">
+            <a href="https://t.me/Bozhechtozaidiot" target="_blank" class="link-row">
+                <i class="fa-brands fa-telegram"></i> telegram <span class="path">Bozhechtozaidiot</span>
+            </a>
+            <a href="https://www.tiktok.com/@privet_gt" target="_blank" class="link-row">
+                <i class="fa-brands fa-tiktok"></i> tiktok <span class="path">privet_gt</span>
+            </a>
+            <a href="https://github.com/sexy-shkebede" target="_blank" class="link-row">
+                <i class="fa-brands fa-github"></i> github <span class="path">sexy-shkebede</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="comments-pane">
+        <div class="prompt">tail -f comments.log</div>
+        <div id="comments-container" class="comments-section"></div>
+    </div>
+</div>
+
+<div class="footer-note">EOF</div>
+
+<script>
+    // время
+    function updateTime() {
+        const display = document.getElementById('timeDisplay');
+        const warning = document.getElementById('warningText');
+        const now = new Date();
+        const moscowTime = new Intl.DateTimeFormat('ru-RU', {
+            timeZone: 'Europe/Moscow',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+        }).formatToParts(now);
+        const h = moscowTime.find(p => p.type === 'hour').value;
+        const m = moscowTime.find(p => p.type === 'minute').value;
+        const s = moscowTime.find(p => p.type === 'second').value;
+        display.textContent = `${h}.${m}.${s}`;
+        const hourInt = parseInt(h);
+        warning.style.display = (hourInt >= 0 && hourInt < 9) ? 'block' : 'none';
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // комментарии
+    const commentsContainer = document.getElementById('comments-container');
+    const themeToggle = document.getElementById('themeToggle');
+    let isDark = true;
+
+    function loadComments(dark) {
+        commentsContainer.innerHTML = '';
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = "https://comments.app/js/widget.js?3";
+        script.setAttribute('data-comments-app-website', 'H5q6PgQw');
+        script.setAttribute('data-limit', '5');
+        script.setAttribute('data-dislikes', '1');
+
+        if (dark) {
+            script.setAttribute('data-color', '5FFBF1');
+            script.setAttribute('data-dark', '1');
+        } else {
+            script.setAttribute('data-color', '0D8F86');
+        }
+
+        commentsContainer.appendChild(script);
+    }
+
+    themeToggle.addEventListener('click', () => {
+        isDark = !isDark;
+        document.body.classList.toggle('light-mode');
+        loadComments(isDark);
+    });
+
+    loadComments(true);
+
+    // факты
+    const factsList = [
+        "Факт №1: \"Моча отбеливает зубы\" Сосницкий Д.И.",
+        "Факт №8: \"Пузо беременных мужчин больше чем у дохлой бабки\" Вирусняк",
+        "Факт №2: Сонуки мой брадар, просто знайте это",
+        "Факт №99: Короче вакусо лучший друн",
+        "Факт №15: \"Если пернул и пахнет долго, значит сиранул\" @chmonya531",
+        "Факт №9: \"Несмотря на расстояние в ≈3500км каймер смог подорвать жопу санечку\" @скрыт",
+        "Факт №3: Карасю пасиба, без него я бы не смог узнать про хостинг гитхапппп🤔🤔🤔",
+        "Факт №12: \"а 😢ещё🎉 я🥰 пидофил😎\" @Time1194",
+        "Факт №14: \"Изи бриджи\" by @Smorwy",
+        "Факт №19: шарк гений, супер быстрый, крутой, сигма, а все фейки",
+        "Факт №17: Как многие уже поняли, тут можно оставить свой факт",
+        "Факт №13: Этот сайт создал гемини по моим наброскам",
+        "Факт №10: Этот сайт использует метрику",
+        "Факт №6: Скоро на этом сайте будут комментарии / p.s. они тут уже есть, но факт я не уберу",
+        "Факт №7: Этот факт я написал после того как облился чаем",
+        "Факт №13: \"Принесу пива, возьму в рот @TheSane4ek\" @скрыт"
+    ];
+
+    const btn = document.getElementById('getFactBtn');
+    const output = document.getElementById('factOutput');
+    let lastIndices = [];
+
+    btn.addEventListener('click', () => {
+        output.style.display = 'none';
+        setTimeout(() => {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * factsList.length);
+            } while (lastIndices.includes(randomIndex));
+            lastIndices.push(randomIndex);
+            if (lastIndices.length > 2) lastIndices.shift();
+            output.innerHTML = factsList[randomIndex] + ' <span class="cursor">&nbsp;</span>';
+            output.style.display = 'block';
+        }, 250);
+    });
+</script>
+</body>
+  </html>
+  
